@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "azure-pipeline-agent.fullname" . }}
+  labels:
+    {{- include "azure-pipeline-agent.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "azure-pipeline-agent.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "azure-pipeline-agent.selectorLabels" . | nindent 8 }}
+        version: {{ .Release.Revision | quote }}
+      annotations:
+        {{- toYaml .Values.deployment.pod.annotations | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "azure-pipeline-agent.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: VS_TENANT
+              value: {{ required "A tenant is required!" .Values.pipeline.tenant | quote }}
+            - name: AGENT_PAT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "azure-pipeline-agent.fullname" . }}
+                  key: pat
+            {{- if .Values.pipeline.pool }}
+            - name: AGENT_POOL
+              value: {{ .Values.pipeline.pool | quote }}
+            {{- end }}
+          livenessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 60
+            timeoutSeconds: 2
+            failureThreshold: 3
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - ps aux | grep --color=never [A]gent.Listener
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

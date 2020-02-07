@@ -1,0 +1,25 @@
+apiVersion: v1
+entries:
+  azure-pipelines-agent:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2020-02-07T17:36:15.511919-03:00"
+    description: The in Kubernetes Azure Pipelines Agent.
+    digest: e6d5049bec0709865f235b44e2902f7b770d64cfd6990e6fb23b9278390fcf8f
+    home: https://github.com/Lambda3/docker-azure-pipelines-agent
+    keywords:
+    - Azure Pipelines Agent
+    - Azure Pipelines
+    - Azure
+    - Agent
+    maintainers:
+    - email: giggio@giggio.net
+      name: giggio
+      url: https://twitter.com/giovannibassi
+    name: azure-pipelines-agent
+    sources:
+    - https://github.com/Lambda3/docker-azure-pipelines-agent
+    urls:
+    - https://github.com/Lambda3/helmcharts/releases/download/azure-pipelines-agent-0.0.1/azure-pipelines-agent-0.0.1.tgz
+    version: 0.0.1
+generated: "2020-02-07T17:36:15.2590795-03:00"
